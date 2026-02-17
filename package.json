@@ -35,7 +35,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.18",
     "convex-test": "^0.0.41",
-    "convex-test-provider": "file:../../convex-test-provider",
+    "convex-test-provider": "^0.3.0",
     "dotenv": "^17.3.1",
     "eslint": "^9.27.0",
     "eslint-plugin-react-hooks": "^7.0.1",

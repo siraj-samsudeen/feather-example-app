@@ -41,17 +41,13 @@ export default defineConfig({
       },
       {
         extends: true,
-        resolve: {
-          // file:-linked convex-test-provider is symlinked, so its deps resolve
-          // from its own node_modules. dedupe forces a single copy of shared libs;
-          // server.deps.inline processes the package through Vite's pipeline.
-          dedupe: ["react", "react-dom", "convex"],
-        },
         test: {
           name: "react",
           environment: "jsdom",
           include: ["src/**/*.test.{ts,tsx}"],
           setupFiles: ["src/test.setup.ts"],
+          // Process convex-test-provider through Vite's pipeline so the
+          // convexTestProviderPlugin alias resolves the internal import.
           server: { deps: { inline: ["convex-test-provider"] } },
         },
       },
