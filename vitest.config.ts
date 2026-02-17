@@ -1,9 +1,10 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { convexTestProviderPlugin } from "convex-test-provider/vitest-plugin";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), convexTestProviderPlugin()],
   test: {
     coverage: {
       enabled: true,
@@ -40,11 +41,18 @@ export default defineConfig({
       },
       {
         extends: true,
+        resolve: {
+          // file:-linked convex-test-provider is symlinked, so its deps resolve
+          // from its own node_modules. dedupe forces a single copy of shared libs;
+          // server.deps.inline processes the package through Vite's pipeline.
+          dedupe: ["react", "react-dom", "convex"],
+        },
         test: {
           name: "react",
           environment: "jsdom",
           include: ["src/**/*.test.{ts,tsx}"],
           setupFiles: ["src/test.setup.ts"],
+          server: { deps: { inline: ["convex-test-provider"] } },
         },
       },
     ],
