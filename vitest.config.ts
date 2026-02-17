@@ -26,6 +26,7 @@ export default defineConfig({
         "convex/auth.ts", // Calls convexAuth({ providers: [Password] }) — config only
         "convex/auth.config.ts", // Provider domain/applicationID config object
         "convex/http.ts", // Creates httpRouter, registers auth HTTP routes — no custom endpoints
+        "convex/schema.ts", // Declarative table definitions — no runtime logic
       ],
     },
     projects: [

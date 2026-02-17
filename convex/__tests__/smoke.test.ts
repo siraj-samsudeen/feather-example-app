@@ -4,12 +4,17 @@ import schema from "../schema";
 import { modules } from "../test.setup";
 
 describe("convex environment", () => {
-  test("convex-test initializes with schema", async () => {
+  test("convex-test initializes with schema and supports CRUD", async () => {
     const t = convexTest(schema, modules);
-    // Verify we can run a simple operation against the in-memory backend
-    const result = await t.run(async (ctx) => {
+    // Insert a user — proves the authTables schema loaded correctly.
+    // If "users" table didn't exist, db.insert would throw.
+    await t.run(async (ctx) => {
+      await ctx.db.insert("users", { email: "test@example.com" });
+    });
+    const users = await t.run(async (ctx) => {
       return ctx.db.query("users").collect();
     });
-    expect(result).toEqual([]);
+    expect(users).toHaveLength(1);
+    expect(users[0].email).toBe("test@example.com");
   });
 });

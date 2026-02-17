@@ -1,10 +1,7 @@
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, test, expect, afterEach } from "vitest";
-import {
-  ConvexTestAuthProvider,
-  type ConvexTestClient,
-} from "convex-test-provider";
+import { renderWithConvexAuth } from "convex-test-provider";
 import { convexTest } from "convex-test";
 
 import schema from "../../convex/schema";
@@ -13,25 +10,12 @@ import App from "../App";
 
 afterEach(() => cleanup());
 
-/**
- * Render App wrapped in ConvexTestAuthProvider.
- *
- * We use ConvexTestAuthProvider directly (not renderWithConvexAuth) because
- * the helper re-exports @testing-library/react from convex-test-provider's
- * own node_modules, causing dual-React when linked via file: protocol.
- * Using the consumer's @testing-library/react avoids the issue.
- */
 function renderApp(options?: { authenticated?: boolean; signInError?: Error }) {
-  const t = convexTest(schema, modules) as unknown as ConvexTestClient;
-  return render(
-    <ConvexTestAuthProvider
-      client={t}
-      authenticated={options?.authenticated ?? true}
-      signInError={options?.signInError}
-    >
-      <App />
-    </ConvexTestAuthProvider>,
-  );
+  const t = convexTest(schema, modules);
+  return renderWithConvexAuth(<App />, t, {
+    authenticated: options?.authenticated ?? true,
+    signInError: options?.signInError,
+  });
 }
 
 describe("App", () => {
