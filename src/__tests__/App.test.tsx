@@ -86,6 +86,8 @@ describe("App", () => {
     const user = userEvent.setup();
     renderApp({ authenticated: false });
 
+    // Credentials are arbitrary — the mock signIn() unconditionally succeeds.
+    // Backend credential validation is tested separately in convex/ tests.
     await screen.findByPlaceholderText("Email");
     await user.type(screen.getByPlaceholderText("Email"), "test@example.com");
     await user.type(screen.getByPlaceholderText("Password"), "password123");
