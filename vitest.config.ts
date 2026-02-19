@@ -27,6 +27,7 @@ export default defineConfig({
         "convex/auth.config.ts", // Provider domain/applicationID config object
         "convex/http.ts", // Creates httpRouter, registers auth HTTP routes — no custom endpoints
         "convex/schema.ts", // Declarative table definitions — no runtime logic
+        "convex/testing.ts", // E2E cleanup mutation — only called by Playwright tests
       ],
     },
     projects: [
