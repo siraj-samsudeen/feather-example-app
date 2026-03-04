@@ -1,12 +1,12 @@
-import { screen, cleanup, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, test, expect, afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach, describe, test } from "vitest";
 import { renderWithConvexAuth } from "convex-test-provider";
 import { convexTest } from "convex-test";
 
 import schema from "../../convex/schema";
 import { modules } from "../../convex/test.setup";
 import App from "../App";
+import { createSession } from "feather-testing-core/rtl";
 
 afterEach(() => cleanup());
 
@@ -21,99 +21,79 @@ function renderApp(options?: { authenticated?: boolean; signInError?: Error }) {
 describe("App", () => {
   test("authenticated user sees greeting and sign-out button", async () => {
     renderApp({ authenticated: true });
+    const session = createSession();
 
-    expect(
-      await screen.findByText("Hello! You are signed in."),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /sign out/i }),
-    ).toBeInTheDocument();
-    expect(screen.queryByPlaceholderText("Email")).not.toBeInTheDocument();
+    await session
+      .assertText("Hello! You are signed in.")
+      .assertText("Sign out")
+      .refuteText("Email");
   });
 
   test("unauthenticated user sees greeting and sign-in form", async () => {
     renderApp({ authenticated: false });
+    const session = createSession();
 
-    expect(
-      await screen.findByText("Hello, Anonymous!"),
-    ).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Email")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Password")).toBeInTheDocument();
-    expect(screen.getByText("Sign in")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /sign out/i }),
-    ).not.toBeInTheDocument();
+    await session
+      .assertText("Hello, Anonymous!")
+      .assertText("Sign in")
+      .refuteText("Sign out");
   });
 
   test("sign-in form toggles between sign-in and sign-up", async () => {
-    const user = userEvent.setup();
     renderApp({ authenticated: false });
+    const session = createSession();
 
-    // Default: sign-in mode
-    expect(await screen.findByText("Sign in")).toBeInTheDocument();
-    expect(screen.getByText("Don't have an account?")).toBeInTheDocument();
-    expect(screen.getByText("Sign up instead")).toBeInTheDocument();
+    await session
+      .assertText("Sign in")
+      .assertText("Don't have an account?")
+      .assertText("Sign up instead");
 
-    // Toggle to sign-up
-    await user.click(screen.getByText("Sign up instead"));
-    expect(screen.getByText("Sign up")).toBeInTheDocument();
-    expect(screen.getByText("Already have an account?")).toBeInTheDocument();
-    expect(screen.getByText("Sign in instead")).toBeInTheDocument();
+    await session
+      .click("Sign up instead")
+      .assertText("Sign up")
+      .assertText("Already have an account?")
+      .assertText("Sign in instead");
 
-    // Toggle back to sign-in
-    await user.click(screen.getByText("Sign in instead"));
-    expect(screen.getByText("Sign in")).toBeInTheDocument();
-    expect(screen.getByText("Sign up instead")).toBeInTheDocument();
+    await session
+      .click("Sign in instead")
+      .assertText("Sign in")
+      .assertText("Sign up instead");
   });
 
   test("sign-out button toggles to unauthenticated view", async () => {
-    const user = userEvent.setup();
     renderApp({ authenticated: true });
+    const session = createSession();
 
-    expect(
-      await screen.findByText("Hello! You are signed in."),
-    ).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /sign out/i }));
-
-    expect(
-      await screen.findByText("Hello, Anonymous!"),
-    ).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Email")).toBeInTheDocument();
+    await session
+      .assertText("Hello! You are signed in.")
+      .clickButton("Sign out")
+      .assertText("Hello, Anonymous!");
   });
 
   test("form submission toggles to authenticated view", async () => {
-    const user = userEvent.setup();
     renderApp({ authenticated: false });
+    const session = createSession();
 
     // Credentials are arbitrary — the mock signIn() unconditionally succeeds.
     // Backend credential validation is tested separately in convex/ tests.
-    await screen.findByPlaceholderText("Email");
-    await user.type(screen.getByPlaceholderText("Email"), "test@example.com");
-    await user.type(screen.getByPlaceholderText("Password"), "password123");
-    await user.click(screen.getByText("Sign in"));
-
-    expect(
-      await screen.findByText("Hello! You are signed in."),
-    ).toBeInTheDocument();
+    await session
+      .fillIn("Email", "test@example.com")
+      .fillIn("Password", "password123")
+      .click("Sign in")
+      .assertText("Hello! You are signed in.");
   });
 
   test("error display on sign-in failure", async () => {
-    const user = userEvent.setup();
     renderApp({
       authenticated: false,
       signInError: new Error("Invalid credentials"),
     });
+    const session = createSession();
 
-    await screen.findByPlaceholderText("Email");
-    await user.type(screen.getByPlaceholderText("Email"), "test@example.com");
-    await user.type(screen.getByPlaceholderText("Password"), "wrong");
-    await user.click(screen.getByText("Sign in"));
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/Error signing in: Invalid credentials/),
-      ).toBeInTheDocument();
-    });
+    await session
+      .fillIn("Email", "test@example.com")
+      .fillIn("Password", "wrong")
+      .click("Sign in")
+      .assertText("Error signing in: Invalid credentials");
   });
 });

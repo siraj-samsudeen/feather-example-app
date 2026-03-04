@@ -1,4 +1,4 @@
-import { test as base } from "@playwright/test";
+import { test as featherTest } from "feather-testing-core/playwright";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../convex/_generated/api";
 import dotenv from "dotenv";
@@ -14,7 +14,7 @@ if (!convexUrl) {
 
 const client = new ConvexHttpClient(convexUrl);
 
-export const test = base.extend<{ _cleanup: void }>({
+export const test = featherTest.extend<{ _cleanup: void }>({
   _cleanup: [
     async ({}, use) => {
       await use();
