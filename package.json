@@ -19,7 +19,6 @@
   "dependencies": {
     "@convex-dev/auth": "^0.0.90",
     "convex": "^1.31.7",
-    "feather-testing-core": "^0.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
@@ -37,11 +36,11 @@
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.18",
     "convex-test": "^0.0.41",
-    "convex-test-provider": "^0.4.0",
     "dotenv": "^17.3.1",
     "eslint": "^9.27.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.0",
+    "feather-testing-convex": "file:../feather-testing-convex/feather-testing-convex-0.4.0.tgz",
     "globals": "^17.3.0",
     "jsdom": "^28.1.0",
     "npm-run-all": "^4.1.5",

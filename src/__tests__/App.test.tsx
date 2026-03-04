@@ -1,18 +1,17 @@
 import { cleanup } from "@testing-library/react";
 import { afterEach, describe, test } from "vitest";
-import { renderWithConvexAuth } from "convex-test-provider";
+import { renderWithSession } from "feather-testing-convex/rtl";
 import { convexTest } from "convex-test";
 
 import schema from "../../convex/schema";
 import { modules } from "../../convex/test.setup";
 import App from "../App";
-import { createSession } from "feather-testing-core/rtl";
 
 afterEach(() => cleanup());
 
 function renderApp(options?: { authenticated?: boolean; signInError?: Error }) {
   const t = convexTest(schema, modules);
-  return renderWithConvexAuth(<App />, t, {
+  return renderWithSession(<App />, t, {
     authenticated: options?.authenticated ?? true,
     signInError: options?.signInError,
   });
@@ -20,8 +19,7 @@ function renderApp(options?: { authenticated?: boolean; signInError?: Error }) {
 
 describe("App", () => {
   test("authenticated user sees greeting and sign-out button", async () => {
-    renderApp({ authenticated: true });
-    const session = createSession();
+    const session = renderApp({ authenticated: true });
 
     await session
       .assertText("Hello! You are signed in.")
@@ -30,8 +28,7 @@ describe("App", () => {
   });
 
   test("unauthenticated user sees greeting and sign-in form", async () => {
-    renderApp({ authenticated: false });
-    const session = createSession();
+    const session = renderApp({ authenticated: false });
 
     await session
       .assertText("Hello, Anonymous!")
@@ -40,8 +37,7 @@ describe("App", () => {
   });
 
   test("sign-in form toggles between sign-in and sign-up", async () => {
-    renderApp({ authenticated: false });
-    const session = createSession();
+    const session = renderApp({ authenticated: false });
 
     await session
       .assertText("Sign in")
@@ -61,8 +57,7 @@ describe("App", () => {
   });
 
   test("sign-out button toggles to unauthenticated view", async () => {
-    renderApp({ authenticated: true });
-    const session = createSession();
+    const session = renderApp({ authenticated: true });
 
     await session
       .assertText("Hello! You are signed in.")
@@ -71,8 +66,7 @@ describe("App", () => {
   });
 
   test("form submission toggles to authenticated view", async () => {
-    renderApp({ authenticated: false });
-    const session = createSession();
+    const session = renderApp({ authenticated: false });
 
     // Credentials are arbitrary — the mock signIn() unconditionally succeeds.
     // Backend credential validation is tested separately in convex/ tests.
@@ -84,11 +78,10 @@ describe("App", () => {
   });
 
   test("error display on sign-in failure", async () => {
-    renderApp({
+    const session = renderApp({
       authenticated: false,
       signInError: new Error("Invalid credentials"),
     });
-    const session = createSession();
 
     await session
       .fillIn("Email", "test@example.com")

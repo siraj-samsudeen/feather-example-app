@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { convexTestProviderPlugin } from "convex-test-provider/vitest-plugin";
+import { convexTestProviderPlugin } from "feather-testing-convex/vitest-plugin";
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), convexTestProviderPlugin()],
@@ -48,9 +48,9 @@ export default defineConfig({
           environment: "jsdom",
           include: ["src/**/*.test.{ts,tsx}"],
           setupFiles: ["src/test.setup.ts"],
-          // Process convex-test-provider through Vite's pipeline so the
+          // Process feather-testing-convex through Vite's pipeline so the
           // convexTestProviderPlugin alias resolves the internal import.
-          server: { deps: { inline: ["convex-test-provider"] } },
+          server: { deps: { inline: ["feather-testing-convex"] } },
         },
       },
     ],
